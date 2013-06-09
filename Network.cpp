@@ -4,31 +4,32 @@
 #include "Arduino.h"
 
 Network::Network(Device* device1, EthernetServer* server1) {
-    device = device1;
-    server = server1;
+	device = device1;
+	server = server1;
 }
+
 void Network::startNetwork(IPAddress ip, byte *mac) {
-    Ethernet.begin(mac, ip);
-    server->begin();
+	Ethernet.begin(mac, ip);
+	server->begin();
 }
 
 void Network::discoveryNetwork() {
 	Serial.println("discovering network...");
-    server->print(device->name);
-    server->print("|");
-    
-    server->print(device->components.size());
-    server->print("|");
-    for (int x = 0; x < device->components.size(); x++) {
-        server->print(device->components.get(x)->name);
-        server->print("|");
-        server->print(device->components.get(x)->getTypeName());
-        server->print("|");
-        server->print(device->components.get(x)->port);
-        server->print("|");
-        server->print(device->components.get(x)->getValue());
-        server->println("|");
-    }
+	server->print(device->name);
+	server->print("|");
+
+	server->print(device->components.size());
+	server->print("|");
+	for (int x = 0; x < device->components.size(); x++) {
+		server->print(device->components.get(x)->name);
+		server->print("|");
+		server->print(device->components.get(x)->getTypeName());
+		server->print("|");
+		server->print(device->components.get(x)->port);
+		server->print("|");
+		server->print(device->components.get(x)->getValue());
+		server->println("|");
+	}
 }
 
 void Network::loop() {
