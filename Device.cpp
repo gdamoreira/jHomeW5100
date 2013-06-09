@@ -1,23 +1,24 @@
 #include "Device.h"
 #include "Arduino.h"
 #include "Component.h"
+#include <vector>
 
 Device::Device() {
-	componentIndex = 0;
+	components = ComponentList();
 	serial = true;
 	found = false;
 	name = "noname1";
 }
 
 Device::Device(char* name1) {
-	componentIndex = 0;
+	components = ComponentList();
 	serial = true;
 	found = false;
 	name = name1;
 }
 
 Device::Device(char* name1, boolean serial1) {
-	componentIndex = 0;
+	components = ComponentList();
 	serial = serial1;
 	found = false;
 	name = name1;
@@ -25,23 +26,25 @@ Device::Device(char* name1, boolean serial1) {
 
 char command1[10];
 char parameter1[10];
-char return1[10];
 
-void Device::add(char* name, int type, int port) {
-	Component c1 = Component(name, type,port);
-	components[numberOfComponents++] = c1;
+void Device::add(char* name, int type, int port, int typeio) {
+	Component c1 = Component(name, type, port, typeio);
+	components.add(&c1);
 }
 
-void Device::add(char* name, int type, int port, char*(*readFunction)(), void(*writeFunction)(char*)) {
-	Component c1 = Component(name, type, port);
-	components[numberOfComponents++] = c1;
+
+void Device::remove(char* name) {
+	int index = this->findComponent(name);
+	if (found) {
+		this->components.remove(index);	
+	}
 }
 
 int Device::findComponent(char* name) {
 	int n = 0;
 	found = false;
-	for (int x = 0; x < numberOfComponents; x++) {
-		if (strcmp(name, components[x].name) == 0) {
+	for (int x = 0; x < this->components.size(); x++) {
+		if (strcmp(name, components.get(x)->name) == 0) {
 			n = x;
 			found = true;
 			break;
@@ -56,7 +59,7 @@ void Device::loop() {
 	}
 }
 
-void split(char* command) {
+void Device::split(char* command) {
 	for (int x = 0; x < 15; x++) {
 		command1[x] = '\0';
 		parameter1[x] = '\0';
@@ -82,7 +85,7 @@ void split(char* command) {
 
 char* Device::execute(char* command) {
 	split(command);
-	Component &c = components[findComponent(command1)];
+	Component &c = *this->components.get(findComponent(command1));
 	if (!found) {
 		return "\n";
 	}
@@ -120,18 +123,20 @@ void Device::serialServer() {
 }
 
 void Device::discoverySerial() {
-	Serial.print(name);
-	Serial.print("|");
-	Serial.print(numberOfComponents);
-	Serial.print("|");
-	for (int x = 0; x < numberOfComponents; x++) {
-		Serial.print(components[x].name);
+	if (serial) {
+		Serial.print(name);
 		Serial.print("|");
-		Serial.print(components[x].getTypeName());
+		Serial.print(this->components.size());
 		Serial.print("|");
-		Serial.print(components[x].port);
-		Serial.print("|");
-		Serial.print(components[x].getValue());
-		Serial.print("|");
+		for (int x = 0; x < this->components.size(); x++) {
+			Serial.print(this->components.get(x)->name);
+			Serial.print("|");
+			Serial.print(this->components.get(x)->getTypeName());
+			Serial.print("|");
+			Serial.print(this->components.get(x)->port);
+			Serial.print("|");
+			Serial.print(this->components.get(x)->getValue());
+			Serial.print("|");
+		}
 	}
 }

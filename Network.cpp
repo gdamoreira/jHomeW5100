@@ -17,16 +17,16 @@ void Network::discoveryNetwork() {
     server->print(device->name);
     server->print("|");
     
-    server->print(device->numberOfComponents);
+    server->print(device->components.size());
     server->print("|");
-    for (int x = 0; x < device->numberOfComponents; x++) {
-        server->print(device->components[x].name);
+    for (int x = 0; x < device->components.size(); x++) {
+        server->print(device->components.get(x)->name);
         server->print("|");
-        server->print(device->components[x].getTypeName());
+        server->print(device->components.get(x)->getTypeName());
         server->print("|");
-        server->print(device->components[x].port);
+        server->print(device->components.get(x)->port);
         server->print("|");
-        server->print(device->components[x].getValue());
+        server->print(device->components.get(x)->getValue());
         server->println("|");
     }
 }
@@ -39,9 +39,9 @@ void Network::loop() {
 			char param[str.length()];
 			str.toCharArray(param, str.length() - 1);
 			
-			server->println("HTTP/1.1 200 OK");
-			server->println("Content-Type: text/html");
-			server->println("Connection: close");
+			server->println(PSTR("HTTP/1.1 200 OK"));
+			server->println(PSTR("Content-Type: text/html"));
+			server->println(PSTR("Connection: close"));
 			server->println();
 
 			if (param[0] == '\0') {
@@ -62,18 +62,18 @@ void Network::loop() {
 
 String Network::serviceRequest(EthernetClient *client) {
 	String param = "";
-	boolean eof = false;
+	boolean eol = false;
 	boolean lb = true;
 	while (client->connected()) {
 		if (client->available()) {
 			char c = client->read();
 			
-			if (!eof) param.concat(c);
+			if (!eol) param.concat(c);
 			
 			if (c == '\n' && lb) {
 				break;
 			} else if (c == '\n') {
-				if (!eof) eof = true;
+				if (!eol) eol = true;
 				lb = true;
 			} else if (c != '\r') {
 				lb = false;

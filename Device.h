@@ -2,34 +2,31 @@
 #define DEVICE_H
 #include "Component.h"
 #include "Arduino.h"
-
-#define MAX 15
-#define I2C 99
+#include "ComponentList.h"
 
 class Device {
 
 private:
-	bool debug;
 	bool found;
-	int componentIndex;
+	bool serial;
+
+	void split(char*);
+	int findComponent(char*) ;
 
 public:
 	Device();
 	Device(char*);
 	Device(char*, boolean);
 
-	int numberOfComponents;
-	bool serial;
-	Component components[MAX];
-	void add(char*, int, int);
-	void add(char*, int, int,char*(*readFunction)(), void(*writeFunction)(char*));
-	void loop();
-	String discoveryString();
-	int findComponent(char*) ;
-	void serialServer();
-	char* execute(char *);
 	char* name;
-	void printComponents(int type);
+	ComponentList components;
+
+	void add(char*, int, int, int);
+	void remove(char*);
+	char* execute(char *);
+	void loop();
+
+	void serialServer();
 	void discoverySerial();
 };
 #endif

@@ -7,15 +7,15 @@
 #include "Device.h"
 
 class Network  {
-  private:
+	private:
 
-  public:    
-    Device* device;
-    EthernetServer* server;
-	Network(Device* device, EthernetServer* server1);
-    void startNetwork(IPAddress ip, byte *mac);
-    void loop();
-	String serviceRequest(EthernetClient *client);
-    void discoveryNetwork();
+	public:    
+		Device* device;
+		EthernetServer* server;
+		Network(Device* device, EthernetServer* server1);
+		void startNetwork(IPAddress ip, byte *mac);
+		void loop();
+		String serviceRequest(EthernetClient *client);
+		void discoveryNetwork();
 };
 #endif
