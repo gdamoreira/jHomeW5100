@@ -14,20 +14,19 @@ void Network::startNetwork(IPAddress ip, byte *mac) {
 }
 
 void Network::discoveryNetwork() {
-	Serial.println("discovering network...");
 	server->print(device->name);
 	server->print("|");
 
 	server->print(device->components.size());
 	server->print("|");
 	for (int x = 0; x < device->components.size(); x++) {
-		server->print(device->components.get(x)->name);
+		server->print(device->components[x].name);
 		server->print("|");
-		server->print(device->components.get(x)->getTypeName());
+		server->print(device->components[x].getTypeName());
 		server->print("|");
-		server->print(device->components.get(x)->port);
+		server->print(device->components[x].port);
 		server->print("|");
-		server->print(device->components.get(x)->getValue());
+		server->print(device->components[x].getValue());
 		server->println("|");
 	}
 }
@@ -39,7 +38,7 @@ void Network::loop() {
 		if (str) {
 			char param[str.length()];
 			str.toCharArray(param, str.length() - 1);
-			
+
 			server->println(PSTR("HTTP/1.1 200 OK"));
 			server->println(PSTR("Content-Type: text/html"));
 			server->println(PSTR("Connection: close"));
@@ -50,9 +49,7 @@ void Network::loop() {
 			} else if (strcmp("discovery", param) == 0) {
 				discoveryNetwork();
 			} else {
-				Serial.print("trying ");
 				Serial.print(param);
-				Serial.println("...");
 				server->write(device->execute(param));
 			}
 		}
@@ -68,9 +65,9 @@ String Network::serviceRequest(EthernetClient *client) {
 	while (client->connected()) {
 		if (client->available()) {
 			char c = client->read();
-			
+
 			if (!eol) param.concat(c);
-			
+
 			if (c == '\n' && lb) {
 				break;
 			} else if (c == '\n') {
@@ -85,6 +82,6 @@ String Network::serviceRequest(EthernetClient *client) {
 	param.replace("POST /", "");
 	param.replace("GET /", "");
 	param.replace(" HTTP/1.1", "");
-	
+
 	return param;
 }

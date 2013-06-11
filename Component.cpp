@@ -63,7 +63,7 @@ char* Component::read() {
 		} else if (type == SERIAL) {
 			int counter = 0;
 			while (Serial.available() > 0 && counter < 15) {
-				char c = Serial.read(); 
+				char c = Serial.read();
 				delay(5);
 				readValue[counter++] = c;
 			}
